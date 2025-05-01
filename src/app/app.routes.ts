@@ -22,7 +22,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'dasboard',
+    redirectTo: 'dashboard',
   }
 
 ];
