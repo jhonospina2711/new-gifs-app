@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 
 import { environment } from '@environments/environment.development';
 import { Gif } from '../interfaces/gif.interface';
 import { GifMapper } from '../mapper/gif.mapper';
-import { map, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import type { GiphyResponse } from '../interfaces/giphy.interfaces';
 
 // {
@@ -12,6 +12,11 @@ import type { GiphyResponse } from '../interfaces/giphy.interfaces';
 //   'Saitama': [gif1, gif2, gif3],
 //   ''
 // }
+
+const loadFromLoadStorage = (): Record<string, Gif[]> => {
+  const gifs = localStorage.getItem('gifs') ?? '{}';
+  return gifs ? JSON.parse(gifs) : {};
+}
 
 //* Tipado para un objetos que sus llaves son dinamicas
 //* Record<string, Gif[]>
@@ -29,7 +34,7 @@ trendingGifsLoading = signal(true);
 trendingGifs = signal<Gif[]>([]);
 
 //* Esta señal permite guardar los elementos de busquedad en el storage */
-searchHistory = signal<Record<string, Gif[]>>({});
+searchHistory = signal<Record<string, Gif[]>>(loadFromLoadStorage());
 
 //* obtiene las key de la señal searchHistory() la cual contiene los resultados de la busquedad */
 searchHistoryKeys = computed( () => Object.keys(this.searchHistory()));
@@ -39,7 +44,7 @@ constructor() {
   //console.log('Servicio creado');
 }
 
-  loadTrendingGifs() {
+  loadTrendingGifs(): void {
     this.http.get<GiphyResponse>(`${ environment.giphyUrl }/gifs/trending`, {
       params: {
         api_key: environment.giphyApikey,
@@ -54,7 +59,7 @@ constructor() {
   }
 
   //* Esta función permite la busquedad de gifs en el endpoint https://api.giphy.com/v1/gifs/search */
-  searchGifs( query: string ) {
+  searchGifs( query: string ): Observable<Gif[]> {
     return this.http.get<GiphyResponse>(`${ environment.giphyUrl }/gifs/search`, {
       params: {
         api_key: environment.giphyApikey,
@@ -80,5 +85,14 @@ constructor() {
     //   console.log({search: gifs});
     // });
   }
+
+  getHistoryGifs( query: string ): Gif[] {
+    return this.searchHistory()[query] ?? [];
+  }
+
+  //**Los effectos (effect) permiten disparar funciones cada que vez que se presente una acción */
+  saveToLocalStorage = effect( () => {
+    localStorage.setItem('gifs', JSON.stringify(this.searchHistory()))
+  });
 
 }
