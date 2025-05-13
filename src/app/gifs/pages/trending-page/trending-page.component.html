@@ -4,6 +4,23 @@
 </section> -->
 
 <div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-5">
+  @for (group of gifService.trendigGifGroup(); track $index) {
+    <div class="grid gap-4">
+      @for (gif of group; track gif.id) {
+        <div>
+          <img
+            src="" alt="">
+        </div>
+      }
+
+
+
+    </div>
+  }
+
+
+
+
   <div>
       <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg" alt="">
   </div>
