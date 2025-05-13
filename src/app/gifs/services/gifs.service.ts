@@ -33,6 +33,15 @@ trendingGifsLoading = signal(true);
 //* Se crea una señal de un array de objetos tipo Gif
 trendingGifs = signal<Gif[]>([]);
 
+//*
+trendigGifGroup = computed( () => {
+  const groups = [];
+  for ( let i = 0; i < this.trendingGifs().length; i +=3) {
+    groups.push( this.trendingGifs().slice(i, i+3))
+  }
+  return groups;
+});
+
 //* Esta señal permite guardar los elementos de busquedad en el storage */
 searchHistory = signal<Record<string, Gif[]>>(loadFromLoadStorage());
 
